@@ -1,0 +1,81 @@
+<html>
+<head>
+	<title>
+		Live Val
+	</title>
+	<script type="text/javascript">
+	var val = 0;
+	setInterval(function(){
+		 if (window.XMLHttpRequest) {
+            // code for IE7+, Firefox, Chrome, Opera, Safari
+            xmlhttp = new XMLHttpRequest();
+        } else {
+            // code for IE6, IE5
+            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+        }
+		xmlhttp.onreadystatechange = function() {
+			if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+				val = xmlhttp.responseText;
+				console.log(xmlhttp.responseText);
+				document.getElementById("data").innerHTML=val;
+			}
+		}
+		xmlhttp.open("GET", "getval.php", true);
+		xmlhttp.send();
+	},500);
+	window.onload = function () {
+
+		var dps = []; // dataPoints
+
+		var chart = new CanvasJS.Chart("chartContainer",{
+			title :{
+				text: "GasValue"
+			},			
+			data: [{
+				type: "line",
+				dataPoints: dps 
+			}]
+		});
+
+		var xVal = 0;
+		var yVal = 100;	
+		var updateInterval = 20;
+		var dataLength = 500; // number of dataPoints visible at any point
+
+		var updateChart = function (count) {
+			count = count || 1;
+			// count is number of times loop runs to generate random dataPoints.
+			
+			for (var j = 0; j < count; j++) {	
+				yVal = val*2;
+				dps.push({
+					x: xVal,
+					y: yVal
+				});
+				xVal++;
+			};
+			if (dps.length > dataLength)
+			{
+				dps.shift();				
+			}
+			
+			chart.render();		
+
+		};
+
+		// generates first set of dataPoints
+		updateChart(dataLength); 
+
+		// update chart after specified time. 
+		setInterval(function(){updateChart()}, updateInterval); 
+
+	}
+	</script>
+	<script type="text/javascript" src="js/canvasjs.min.js"></script>
+</head>
+<body>
+	<div id="chartContainer" style="height: 300px; width:100%;">
+	</div>
+	Live Value = <span id="data"></span>
+</body>
+</html>
